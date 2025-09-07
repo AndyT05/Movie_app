@@ -3,6 +3,7 @@ import { useDebounce } from "react-use";
 import Search from "./components/Search";
 import Spinner from "./components/Spinner";
 import MovieCard from "./components/MovieCard";
+import { updateSearchCount } from "../appwrite";
 
 const API_BASE_URL = "https://api.themoviedb.org/3";
 const API_KEY = import.meta.env.VITE_TMDB_API_KEY;
@@ -49,6 +50,10 @@ function App() {
         return;
       }
       setMovieList(data.results || []);
+
+      if (query && data.results?.length > 0) {
+        await updateSearchCount(query, data.results[0]);
+      }
     } catch (error) {
       console.error(`Error fetching movie: ${error}`);
       setErrorMessage("Error fetching movies. Try again later.");
@@ -60,6 +65,11 @@ function App() {
   useEffect(() => {
     fetchMovies(debouncedSearchTerm);
   }, [debouncedSearchTerm]);
+
+  // const onClickTesting = () => {
+  //   console.log("testing");
+  //   updateSearchCount();
+  // };
 
   return (
     <main>
@@ -74,6 +84,9 @@ function App() {
           <Search searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
         </header>
         <section className="all-movies">
+          {/* <button className="text-white" onClick={onClickTesting}>
+            Test
+          </button> */}
           <h2 className="mt-[40px]">All movies</h2>
           {isLoading ? (
             <Spinner />
